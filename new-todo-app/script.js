@@ -162,7 +162,7 @@ function removeTodos() {
         method: "DELETE",
       }).then((response) => {
         if (!response.ok) {
-          alert("Problem Yay!");
+          alert("Problem okay? Yay okay?!");
         }
       });
     })
