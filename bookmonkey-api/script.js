@@ -58,7 +58,7 @@ function renderBookList(randomList) {
     wrapperLi.appendChild(wrapHeader);
 
     const isbn = document.createElement("p");
-    isbn.innerText = book.isbn;
+    isbn.innerText = "ISBN: " + book.isbn;
     wrapperLi.appendChild(isbn);
 
     const bookLink = document.createElement("a");
