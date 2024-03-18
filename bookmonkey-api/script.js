@@ -8,8 +8,9 @@ document.body.addEventListener("submit", (event) => {
 //API for Booklist
 const booklistUrl = "http://localhost:4730/books/";
 
-//Local Storage for ToDos
+//Local Storage for books
 const bookList = [];
+let favoriteBooks = [];
 
 //Load initial bookList
 loadBookList();
@@ -17,7 +18,6 @@ loadBookList();
 //Load bookList from API
 function loadBookList() {
   fetch(booklistUrl)
-    //Check if network response is ok
     .then((response) => {
       if (!response.ok) {
         alert(
@@ -26,7 +26,6 @@ function loadBookList() {
       }
       return response.json();
     })
-    //Check if API list is empty and add a default
     .then((booksFromApi) => {
       if (booksFromApi.length > 0) {
         bookList.push(...booksFromApi);
@@ -40,12 +39,9 @@ function loadBookList() {
     });
 }
 
-//Rendered list
 function renderBookList(randomList) {
   const list = document.querySelector("#books-list");
-  //Clear list before updating
   list.innerHTML = "";
-  //Loop the list inserted into function to find everything
   randomList.forEach((book) => {
     const wrapperLi = document.createElement("li");
 
@@ -71,12 +67,94 @@ function renderBookList(randomList) {
     wrapperLi.appendChild(bookLink);
 
     const favoBtn = document.createElement("button");
-    favoBtn.innerText = "Add to Favorites";
+    if (book.isFavorite === true) {
+      favoBtn.innerText = "Remove from Favorites";
+    } else {
+      favoBtn.innerText = "Add to Favorites";
+    }
+    favoBtn.id = book.isbn;
     wrapperLi.appendChild(favoBtn);
 
     list.appendChild(wrapperLi);
+
+    favoBtn.addEventListener("click", addToFavorites);
   });
 }
+
+function addToFavorites(event) {
+  const addedBook = event.target.id;
+  const bookIndex = bookList.findIndex((book) => book.isbn === addedBook);
+
+  if (event.target.innerText === "Add to Favorites") {
+    favoriteBooks.push(bookList[bookIndex]);
+    event.target.innerText = "Remove from Favorites";
+  } else if (event.target.innerText === "Remove from Favorites") {
+    favoriteBooks = favoriteBooks.filter(
+      (favorite) => favorite.isbn !== addedBook
+    );
+    event.target.innerText = "Add to Favorites";
+  }
+
+  updateBookList(bookIndex);
+}
+
+function updateBookList(bookIndex) {
+  const updatedBook = bookList[bookIndex];
+  const updateUrl = booklistUrl + updatedBook.isbn;
+  updatedBook.isFavorite = !updatedBook.isFavorite;
+
+  fetch(updateUrl, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedBook),
+  })
+    .then((response) => response.json())
+    .then((updatedBookFromApi) => {
+      bookList[bookIndex] = updatedBookFromApi;
+    });
+  loadBookList();
+}
+
+/*
+function addToFavorites(event) {
+  const addedBook = event.target.id;
+  if (event.target.innerText === "Add to Favorites") {
+    for (book of bookList) {
+      if (book.isbn === addedBook) {
+        favoriteBooks.push(book);
+        event.target.innerText = "Remove from Favorites";
+      }
+    }
+  } else if (event.target.innerText === "Remove from Favorites") {
+    for (favorite of favoriteBooks) {
+      if (favorite.isbn === addedBook) {
+        favoriteBooks = favoriteBooks.filter(
+          (favorite) => favorite.id !== addedBook
+        );
+        event.target.innerText = "Add to Favorites";
+      }
+    }
+  }
+
+  function updateBookList() {
+    const updateUrl = booklistUrl + addedBook;
+    const favoriteYes = true;
+    fetch(updateUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(book.favoriteYes),
+    })
+      .then((response) => response.json())
+      .then((updatedBookFromApi) => {
+        const bookIndex = bookList.findIndex(
+          (book) => book.id === updatedBookFromApi.id
+        );
+        bookList[bookIndex] = updatedBookFromApi;
+      });
+  }
+  console.log(addedBook);
+  console.log(...favoriteBooks);
+}*/
 
 //Ignore everything beyond this point, it's just my notes for myself.
 
@@ -84,7 +162,7 @@ function renderBookList(randomList) {
 //todoLi.todoObj = todo;
 
 //Capture the button clicks
-//btnAddTodo.addEventListener("click", addNewTodo);
+
 //list.addEventListener("change", checkCheckbox);
 
 //Add sticky todo if list is empty
