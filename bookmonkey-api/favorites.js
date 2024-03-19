@@ -60,7 +60,7 @@ function renderBookList(randomList) {
 
     const bookLink = document.createElement("a");
     bookLink.innerText = "Read more...";
-    bookLink.href = "/book.html?isbn" + book.isbn;
+    bookLink.href = "./book.html?isbn=" + book.isbn;
     wrapperLi.appendChild(bookLink);
 
     const favoBtn = document.createElement("button");
